@@ -71,18 +71,25 @@ def index():
       app.logger.debug("Memo: " + str(memo))
   return flask.render_template('index.html')
 
+@app.route("/new")
+def new():
+  app.logger.debug("Memo entry page")
+  return flask.render_template('new.html')
 
-# We don't have an interface for creating memos yet
-# @app.route("/create")
-# def create():
-#     app.logger.debug("Create")
-#     return flask.render_template('create.html')
+@app.route("/create")
+def create():
+  """
+  This creates the memo in the db
+  TODO
+  """
+  app.logger.debug("Create")
+  return flask.render_template('create.html')
 
 
 @app.errorhandler(404)
 def page_not_found(error):
-    app.logger.debug("Page not found")
-    return flask.render_template('page_not_found.html',
+  app.logger.debug("Page not found")
+  return flask.render_template('page_not_found.html',
                                  badurl=request.base_url,
                                  linkback=url_for("index")), 404
 
@@ -91,7 +98,6 @@ def page_not_found(error):
 # Functions used within the templates
 #
 #################
-
 
 @app.template_filter( 'humanize' )
 def humanize_arrow_date( date ):
@@ -113,7 +119,6 @@ def humanize_arrow_date( date ):
     except: 
         human = date
     return human
-
 
 #############
 #
