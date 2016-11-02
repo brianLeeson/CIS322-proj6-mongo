@@ -17,9 +17,16 @@ from flask import g
 from flask import render_template
 from flask import request
 from flask import url_for
+from flask import jsonify
 
 import json
 import logging
+
+import pymongo
+import sys
+
+import secrets.admin_secrets
+import secrets.client_secrets
 
 # Date handling 
 import arrow    # Replacement for datetime, based on moment.js
@@ -66,9 +73,9 @@ except:
 @app.route("/index")
 def index():
   app.logger.debug("Main page entry")
-  g.memos = get_memos()
-  for memo in g.memos: 
-      app.logger.debug("Memo: " + str(memo))
+  g.memos = sort_memos(get_memos())
+  #for memo in g.memos: 
+  #    app.logger.debug("Memo: " + str(memo))
   return flask.render_template('index.html')
 
 @app.route("/new")
@@ -82,8 +89,47 @@ def create():
   This creates the memo in the db
   TODO
   """
-  app.logger.debug("Create")
-  return flask.render_template('create.html')
+  app.logger.debug("Entering Create")
+  
+  memo = request.args.get("memo", type=str)
+  date = request.args.get("date", type=str)
+
+  app.logger.debug("memo is " + memo)
+  app.logger.debug("date is " + date)
+
+  #handle timezone of memo maker 
+  date = arrow.get(date)
+  date = date.replace(tzinfo=tz.tzlocal())
+
+  record = { "type": "dated_memo", 
+             "date": date.isoformat(),
+             "text": memo
+            }
+  collection.insert(record)
+  
+  rslt = { "key" : "test" }
+  return jsonify(result = rslt)
+
+@app.route("/destroy")
+def destroy():
+  """
+  This creates the memo in the db
+  TODO
+  """
+  app.logger.debug("Entering Destroy")
+  
+  memoDate = request.args.get("memoDate", type=str)
+  #date = request.args.get("date", type=str)
+
+  app.logger.debug("memoDate is " + memoDate)
+  #app.logger.debug("date is " + date)
+
+  collection.remove({'date': memoDate})
+  
+  rslt = { "key" : "test" }
+  return jsonify(result = rslt)
+
+
 
 
 @app.errorhandler(404)
@@ -102,7 +148,7 @@ def page_not_found(error):
 @app.template_filter( 'humanize' )
 def humanize_arrow_date( date ):
     """
-    Date is internal UTC ISO format string.
+    Date iuis internal UTC ISO format string.
     Output should be "today", "yesterday", "in 5 days", etc.
     Arrow will try to humanize down to the minute, so we
     need to catch 'today' as a special case. 
@@ -137,6 +183,15 @@ def get_memos():
         records.append(record)
     return records 
 
+def sort_memos(records):
+  records = sorted(records, key=lambda rec: rec['date'])
+ 
+  #print(type(records))
+  #for record in records:
+     #print(type(record))
+     #print(record['date'])
+
+  return records
 
 if __name__ == "__main__":
     app.debug=CONFIG.DEBUG

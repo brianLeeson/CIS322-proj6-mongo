@@ -25,12 +25,20 @@
 <body>
 <div class="container">
 
+<form action="new">
+<input type="submit" value="Make Memos" id="make">
+
+<input type="submit" value="Remove Memos" id="remove">
+</form>
+
+
+
 <!-- Flashed messages before content -->
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
     {% for message in messages %}
-      <li>{{ message }}</li>
+      <li> {{ message }}</li>
     {% endfor %}
     </ul>
   {% endif %}
@@ -42,6 +50,9 @@
     {% for memo in g.memos %}
   <div class="memo">
   <div class="row">
+  <div class="col-mid-2">
+    <input type="checkbox"  id={loop.index}>
+  </div> 
   <div class="col-md-2">
     {{ memo.date | humanize }}
   </div>
@@ -54,6 +65,18 @@
 {% else %}
   <p>No memos for you. </p>  
 {% endif %}
+
+<script>
+
+$("input").click(function(event) {
+  var memoDate = (this).id;
+
+  console.log(memoDate);
+
+  $.getJSON("/destroy", { memoDate: memoDate},
+              function(data) { } );});
+
+</script>
 
 </div> <!-- container -->
 </body>
