@@ -141,7 +141,6 @@ def destroy_helper(checked):
   removes those items from the database
   returns a list of memos that were destroyed
   """
-  #print("Checked:", checked)
   checkedIndex = (checked.split(','))
   sorted_memos = sort_memos(get_memos())
   
@@ -151,7 +150,6 @@ def destroy_helper(checked):
     memo = sorted_memos[i]
     to_remove.append(memo)
 
-  #print("to_remove:", to_remove) 
   return to_remove
   
 @app.errorhandler(404)
@@ -176,7 +174,6 @@ def humanize_arrow_date( date ):
     need to catch 'today' as a special case. 
     """
     
-    print("date is:", date)
     #close dates should be related by days, not hours.
     try:
         then = arrow.get(date).to('local')
@@ -193,7 +190,6 @@ def humanize_arrow_date( date ):
             human = then.humanize(now)
     except: 
         human = date
-    print("return is:", human)
     return human
 
 #############

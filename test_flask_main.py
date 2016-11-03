@@ -3,6 +3,7 @@ import arrow
 
 #CONDITION
 #Mongod must be running on port 27333 for nosetest to function
+#Must have at least 5 memos in the database
 
 def test_create():
   """
