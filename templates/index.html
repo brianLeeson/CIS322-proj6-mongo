@@ -20,7 +20,6 @@
    <!-- Our own style sheet -->
    <link rel="stylesheet" href="/static/css/memos.css" />
 
-
 </head>
 <body>
 <div class="container">
@@ -32,19 +31,6 @@
 <form>
 <input type="button" value="Remove Memos" id="remove">
 </form>
-
-
-
-<!-- Flashed messages before content -->
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li> {{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
 <h1>Memos</h1>
 
@@ -83,7 +69,7 @@ $("#remove").click(function(event) {
     }
   }
    $.getJSON("/destroy", { checked: checked }, function(data) { } );
-  
+  window.location.href = '/index';  
 });
 
 </script>
