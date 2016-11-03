@@ -12,6 +12,9 @@ Representation conventions for dates:
    - User input/output is in local (to the server) time.  
 """
 
+
+import random
+
 import flask
 from flask import g
 from flask import render_template
@@ -64,7 +67,6 @@ except:
     sys.exit(1)
 
 
-
 ###
 # Pages
 ###
@@ -74,8 +76,6 @@ except:
 def index():
   app.logger.debug("Main page entry")
   g.memos = sort_memos(get_memos())
-  #for memo in g.memos: 
-  #    app.logger.debug("Memo: " + str(memo))
   return flask.render_template('index.html')
 
 @app.route("/new")
@@ -94,14 +94,12 @@ def create():
   memo = request.args.get("memo", type=str)
   date = request.args.get("date", type=str)
 
-  app.logger.debug("memo is " + memo)
-  app.logger.debug("date is " + date)
-
   #handle timezone of memo maker 
   date = arrow.get(date)
   date = date.replace(tzinfo=tz.tzlocal())
 
-  record = { "type": "dated_memo", 
+  record = { "UID": str(random.random()), 
+             "type": "dated_memo", 
              "date": date.isoformat(),
              "text": memo
             }
@@ -118,18 +116,18 @@ def destroy():
   """
   app.logger.debug("Entering Destroy")
   
-  memoDate = request.args.get("memoDate", type=str)
-  #date = request.args.get("date", type=str)
-
-  app.logger.debug("memoDate is " + memoDate)
-  #app.logger.debug("date is " + date)
-
-  collection.remove({'date': memoDate})
+  checked = request.args.get("checked", type=str)
+  checkedIndex = (checked.split(','))
+  sorted_memos = sort_memos(get_memos())
   
+  marked = []
+  for index in range(len(checkedIndex)-1):
+    i = int(checkedIndex[index])-1
+    memo = sorted_memos[i]
+    collection.remove({'UID': memo["UID"]})
+
   rslt = { "key" : "test" }
   return jsonify(result = rslt)
-
-
 
 
 @app.errorhandler(404)
@@ -153,15 +151,23 @@ def humanize_arrow_date( date ):
     Arrow will try to humanize down to the minute, so we
     need to catch 'today' as a special case. 
     """
+
+    #close dates should be related by days, not hours.
     try:
         then = arrow.get(date).to('local')
         now = arrow.utcnow().to('local')
+        yesterday = now.replace(days =- 1)
+        tomorrow  = now.replace(days =+ 1)
         if then.date() == now.date():
             human = "Today"
+        elif (then.date() == yesterday.date()):
+            human = "Yesterday"
+        elif (then.date() == tomorrow.date()):
+            human = "Tomorrow"
         else: 
             human = then.humanize(now)
-            if human == "in a day":
-                human = "Tomorrow"
+            #if human == "in a day":
+                #human = "Tomorrow"
     except: 
         human = date
     return human

@@ -22,7 +22,7 @@ try:
     print("Got database")
     print("Attempting drop users")
     # db.command( {"dropAllUsersFromDatabase": 1 } )
-    db.remove_user(secrets.client_secrets.db_user)
+    #db.remove_user(secrets.client_secrets.db_user)
     print("Dropped database users for {}".format(secrets.client_secrets.db))
     db.command( {"dropDatabase": 1 } )
     print("Dropped database {}".format(secrets.client_secrets.db))

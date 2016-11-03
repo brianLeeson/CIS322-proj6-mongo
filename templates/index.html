@@ -27,8 +27,10 @@
 
 <form action="new">
 <input type="submit" value="Make Memos" id="make">
+</form>
 
-<input type="submit" value="Remove Memos" id="remove">
+<form>
+<input type="button" value="Remove Memos" id="remove">
 </form>
 
 
@@ -46,12 +48,13 @@
 
 <h1>Memos</h1>
 
+<form name="inputs">
 {% if g.memos %}
     {% for memo in g.memos %}
   <div class="memo">
   <div class="row">
   <div class="col-mid-2">
-    <input type="checkbox"  id={loop.index}>
+    <input type="checkbox"  id='{{loop.index}}'>
   </div> 
   <div class="col-md-2">
     {{ memo.date | humanize }}
@@ -65,16 +68,23 @@
 {% else %}
   <p>No memos for you. </p>  
 {% endif %}
+</form>
 
 <script>
 
-$("input").click(function(event) {
-  var memoDate = (this).id;
-
-  console.log(memoDate);
-
-  $.getJSON("/destroy", { memoDate: memoDate},
-              function(data) { } );});
+$("#remove").click(function(event) {
+  var checked = "";
+  var box;
+  var boxes = inputs.getElementsByTagName('input');
+  
+  for (var i = 0; i<boxes.length; i++){
+    if (boxes[i].checked){
+      checked = checked + boxes[i].id + ",";
+    }
+  }
+   $.getJSON("/destroy", { checked: checked }, function(data) { } );
+  
+});
 
 </script>
 
