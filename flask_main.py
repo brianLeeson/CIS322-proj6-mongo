@@ -87,14 +87,28 @@ def new():
 def create():
   """
   This creates the memo in the db
-  TODO
   """
   app.logger.debug("Entering Create")
   
   memo = request.args.get("memo", type=str)
   date = request.args.get("date", type=str)
+  
+  collection.insert(create_helper(memo, date))
+  
+  rslt = { "key" : "test" }
+  return jsonify(result = rslt)
 
-  #handle timezone of memo maker 
+def create_helper(memo, date):
+  """
+  takes two strings, 
+    memo:text of memo
+    date:date of memo
+  adds the memo to the db  
+
+  returns a dict representing the memo
+  """
+  
+  #handle timezones
   date = arrow.get(date)
   date = date.replace(tzinfo=tz.tzlocal())
 
@@ -103,33 +117,43 @@ def create():
              "date": date.isoformat(),
              "text": memo
             }
-  collection.insert(record)
-  
-  rslt = { "key" : "test" }
-  return jsonify(result = rslt)
+  return record
 
 @app.route("/destroy")
 def destroy():
   """
   This creates the memo in the db
-  TODO
   """
   app.logger.debug("Entering Destroy")
   
   checked = request.args.get("checked", type=str)
-  checkedIndex = (checked.split(','))
-  sorted_memos = sort_memos(get_memos())
+  to_remove =  destroy_helper(checked)
   
-  marked = []
-  for index in range(len(checkedIndex)-1):
-    i = int(checkedIndex[index])-1
-    memo = sorted_memos[i]
+  for memo in to_remove:
     collection.remove({'UID': memo["UID"]})
 
   rslt = { "key" : "test" }
   return jsonify(result = rslt)
 
+def destroy_helper(checked):
+  """
+  takes string of numbers sep by commas
+  removes those items from the database
+  returns a list of memos that were destroyed
+  """
+  #print("Checked:", checked)
+  checkedIndex = (checked.split(','))
+  sorted_memos = sort_memos(get_memos())
+  
+  to_remove = []
+  for index in range(len(checkedIndex)-1):
+    i = int(checkedIndex[index])-1
+    memo = sorted_memos[i]
+    to_remove.append(memo)
 
+  #print("to_remove:", to_remove) 
+  return to_remove
+  
 @app.errorhandler(404)
 def page_not_found(error):
   app.logger.debug("Page not found")
@@ -151,7 +175,8 @@ def humanize_arrow_date( date ):
     Arrow will try to humanize down to the minute, so we
     need to catch 'today' as a special case. 
     """
-
+    
+    print("date is:", date)
     #close dates should be related by days, not hours.
     try:
         then = arrow.get(date).to('local')
@@ -166,10 +191,9 @@ def humanize_arrow_date( date ):
             human = "Tomorrow"
         else: 
             human = then.humanize(now)
-            #if human == "in a day":
-                #human = "Tomorrow"
     except: 
         human = date
+    print("return is:", human)
     return human
 
 #############
@@ -191,12 +215,6 @@ def get_memos():
 
 def sort_memos(records):
   records = sorted(records, key=lambda rec: rec['date'])
- 
-  #print(type(records))
-  #for record in records:
-     #print(type(record))
-     #print(record['date'])
-
   return records
 
 if __name__ == "__main__":

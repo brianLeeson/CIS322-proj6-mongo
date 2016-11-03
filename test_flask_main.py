@@ -1,63 +1,78 @@
-#import statements from flask_main.py
-import flask
-from flask import g
-from flask import render_template
-from flask import request
-from flask import url_for
+from flask_main import *
+import arrow
 
-import json
-import logging
+#CONDITION
+#Mongod must be running on port 27333 for nosetest to function
 
-# Date handling 
-import arrow    # Replacement for datetime, based on moment.js
-# import datetime # But we may still need time
-from dateutil import tz  # For interpreting local times
+def test_create():
+  """
+  Test creation of memos
+  """
 
-# Mongo database
-from pymongo import MongoClient
-import secrets.admin_secrets
-import secrets.client_secrets
-MONGO_CLIENT_URL = "mongodb://{}:{}@localhost:{}/{}".format(
-    secrets.client_secrets.db_user,
-    secrets.client_secrets.db_user_pw,
-    secrets.admin_secrets.port, 
-    secrets.client_secrets.db)
+  memo = "this is my memo"
+  date = "2016-11-01"
+  assert(create_helper(memo, date)["text"] == memo)
+  assert(create_helper(memo, date)["date"] == arrow.get(date).replace(tzinfo = tz.tzlocal()).isoformat())
 
-###
-# Globals
-###
-import CONFIG
-app = flask.Flask(__name__)
-app.secret_key = CONFIG.secret_key
+  memo = "this is another memo"
+  date = "2016-02-28"
+  assert(create_helper(memo, date)["text"] == memo)
+  assert(create_helper(memo, date)["date"] == arrow.get(date).replace(tzinfo = tz.tzlocal()).isoformat())
+  
+  #empty memo
+  memo = ""
+  date = "2016-01-01"
+  assert(create_helper(memo, date)["text"] == memo)
+  assert(create_helper(memo, date)["date"] == arrow.get(date).replace(tzinfo = tz.tzlocal()).isoformat())
 
-####
-# Database connection per server process
-###
+  return None
 
-try: 
-    dbclient = MongoClient(MONGO_CLIENT_URL)
-    db = getattr(dbclient, secrets.client_secrets.db)
-    collection = db.dated
+def test_destroy():
+  """
+  test removal of memos
+  This tests that the correct memo to be removed is found.
+  """
+  sorted_memos = sort_memos(get_memos())  
 
-except:
-    print("Failure opening database.  Is Mongo running? Correct password?")
-    sys.exit(1)
+  to_destroy_str = "1,"
+  to_destroy = to_destroy_str.strip(',').split(',')
+  destroyed = []
+  for index in to_destroy:
+    destroyed.append(sorted_memos[int(index)-1])
+  assert(destroy_helper(to_destroy_str) ==  destroyed)
 
-#end
+  #if butto clicked but no boxes checked
+  to_destroy_str = ""
+  destroyed = []
+  assert(destroy_helper(to_destroy_str) ==  destroyed)
 
-#get method
-import flask_main
+  to_destroy_str = "1,5,"
+  to_destroy = to_destroy_str.strip(',').split(',')
+  destroyed = []
+  for index in to_destroy:
+    destroyed.append(sorted_memos[int(index)-1]) 
+  assert(destroy_helper(to_destroy_str) ==  destroyed)
 
-
-
-
-
-
-
-
-
+  return None
 
 
+def test_humanize():
+  """
+  test humanization of dates
+  """
+  now = arrow.now()
 
+  date = now.replace(days =- 2) 
+  assert(humanize_arrow_date(date) == "2 days ago" )
 
+  date = now.replace(days =- 1)
+  assert(humanize_arrow_date(date) == "Yesterday" )
+
+  date = now.replace(days =- 0)
+  assert(humanize_arrow_date(date) == "Today" )
+  
+  date = now.replace(days =+ 1)
+  assert(humanize_arrow_date(date) == "Tomorrow" )
+
+  return None
 
