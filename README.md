@@ -5,8 +5,7 @@ Skeleton code created by instructor: Michael Young
 
 ## What is here
 
-A simple Flask app that creates and displays all the dated memos it 
-finds in a MongoDB database and servers them to the user.
+A simple Flask app that can create, delete and display dated memos in a MongoDB database and servers them to the user.
 
 ## Installation and running
 Project only runnable with client_secrets.py, not included in the repo.
