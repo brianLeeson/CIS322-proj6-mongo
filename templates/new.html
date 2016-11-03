@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Memos</title>
+
+  <!-- 'viewport' is used by bootstrap to respond to device size -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Javascript:  JQuery from a content distribution network (CDN) -->
+  <script
+     src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js">
+  </script>
+
+  <!-- Bootstrap includes javascript and css  (must follow jquery) -->
+  <link rel="stylesheet"
+   href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+   <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js">
+</script>
+
+   <!-- Our own style sheet -->
+   <link rel="stylesheet" href="/static/css/memos.css" />
+
+
+</head>
+<body>
+<div class="container">
+
+<h1>Enter your memos below</h1>
+
+<form>
+<input type="date" id="date"><br>
+</form>
+
+<form>
+<textarea rows="4" cols="50" id="text" ></textarea><br>
+</form>
+
+<form>
+
+<input type="submit" value="Submit" id="submit">
+<input type="submit" value="Clear" id="clear">
+
+</form>
+
+<form action="index">
+<input type="submit" value="View Memos" id="view">
+</form>
+
+<script>
+
+$("#clear").click(function(event) {
+  //clear textbox and datetime
+  $("#date").val("");
+  $("#text").val("");
+  });
+
+$("#submit").click(function(event) {
+  var date = $("#date").val();
+  var memo = $("#text").val();
+  
+  $.getJSON("/create", { date: date, memo: memo }, 
+              function(data) { } 
+           );});
+
+</script>
+
+
+</div>
+</body>
+</html>
+
