@@ -17,8 +17,7 @@
 INVENV = . env/bin/activate ;
 
 Makefile.local: 
-	echo "You must run the 'configure' script before using make"
-
+	bash ./configure
 include Makefile.local  ## Where customizations go 
 
 ##

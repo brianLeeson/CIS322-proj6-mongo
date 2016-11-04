@@ -3,8 +3,10 @@ import arrow
 
 #CONDITION
 #Mongod must be running on port 27333 for nosetest to function
-#Must have at least 5 memos in the database
+#Must have at least 5 memos in the databaset for create tests
+#uncomment test create if conditions met.
 
+'''
 def test_create():
   """
   Test creation of memos
@@ -27,6 +29,7 @@ def test_create():
   assert(create_helper(memo, date)["date"] == arrow.get(date).replace(tzinfo = tz.tzlocal()).isoformat())
 
   return None
+'''
 
 def test_destroy():
   """
